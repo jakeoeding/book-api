@@ -33,9 +33,11 @@ Basic RESTful api with book data
 ]
 ```
 
+### Register a new book
+
 **Definition**
 
-`POST /books/`
+`POST /books`
 
 **Arguments**
 
@@ -46,7 +48,7 @@ Basic RESTful api with book data
 
 **Response**
 
-- `201 Created` upon success
+- `201 CREATED` upon success
 
 ```json
 {
