@@ -46,5 +46,38 @@ class BookList(Resource):
 api.add_resource(BookList, '/books')
 
 
+# Book Endpoint
+class Book(Resource):
+    def get(self, id):
+        shelf = get_db()
+        if not (id in shelf):
+            return {}, 404
+        else:
+            return shelf[id], 200
+
+    def put(self, id):
+        shelf = get_db()
+        if not (id in shelf):
+            return {}, 404
+        else:
+            parser = reqparse.RequestParser()
+            fields = ['title', 'author', 'isbn', 'category']
+            for field in fields:
+                parser.add_argument(field, required=True)
+            args = parser.parse_args()
+            shelf[id] = args
+            return shelf[id], 200
+
+    def delete(self, id):
+        shelf = get_db()
+        if not (id in shelf):
+            return {}, 404
+        else:
+            del shelf[id]
+            return {}, 204
+
+api.add_resource(Book, '/book/<string:id>')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
