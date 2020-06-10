@@ -1,3 +1,4 @@
+import abc
 import random
 import shelve
 
@@ -24,8 +25,15 @@ def teardown_db(exception):
         db.close()
 
 
-# Books Endpoint
-class BookList(Resource):
+# Base class for book endpoints
+class BookEndpoint(Resource):
+    @abc.abstractmethod
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        for field in ['title', 'author', 'isbn', 'category']:
+            self.parser.add_argument(field, required=True)
+
+class BookList(BookEndpoint):
     def get(self):
         shelf = get_db()
         keys = list(shelf.keys())
@@ -33,21 +41,13 @@ class BookList(Resource):
         return books, 200
 
     def post(self):
-        parser = reqparse.RequestParser()
-        fields = ['title', 'author', 'isbn', 'category']
-        for field in fields:
-            parser.add_argument(field, required=True)
-        args = parser.parse_args()
+        args = self.parser.parse_args()
         args['id'] = str(random.randint(1, 1000)) # bad way to assign id
         shelf = get_db()
         shelf[args['id']] = args
         return args, 201
 
-api.add_resource(BookList, '/books')
-
-
-# Book Endpoint
-class Book(Resource):
+class Book(BookEndpoint):
     def get(self, id):
         shelf = get_db()
         if not (id in shelf):
@@ -60,11 +60,7 @@ class Book(Resource):
         if not (id in shelf):
             return {}, 404
         else:
-            parser = reqparse.RequestParser()
-            fields = ['title', 'author', 'isbn', 'category']
-            for field in fields:
-                parser.add_argument(field, required=True)
-            args = parser.parse_args()
+            args = self.parser.parse_args()
             args['id'] = id
             shelf[id] = args
             return shelf[id], 200
@@ -77,6 +73,9 @@ class Book(Resource):
             del shelf[id]
             return {}, 204
 
+
+# Register endpoints
+api.add_resource(BookList, '/books')
 api.add_resource(Book, '/book/<string:id>')
 
 
