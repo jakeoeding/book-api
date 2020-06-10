@@ -38,7 +38,7 @@ class BookList(Resource):
         for field in fields:
             parser.add_argument(field, required=True)
         args = parser.parse_args()
-        args['id'] = str(random.randint(1, 1_000_000)) # bad way to assign id
+        args['id'] = str(random.randint(1, 1000)) # bad way to assign id
         shelf = get_db()
         shelf[args['id']] = args
         return args, 201
@@ -65,6 +65,7 @@ class Book(Resource):
             for field in fields:
                 parser.add_argument(field, required=True)
             args = parser.parse_args()
+            args['id'] = id
             shelf[id] = args
             return shelf[id], 200
 
